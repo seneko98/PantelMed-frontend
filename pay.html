@@ -1,97 +1,39 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>PantelMed Test App</title>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {
-      font-family: sans-serif;
-      background-color: #ffffff;
-      color: #111;
-      padding: 20px;
+  <meta charset="UTF-8">
+  <title>Оплата</title>
+  <link rel="stylesheet" href="style.css">
+  <script>
+    async function checkPayment() {
+      const btn = document.getElementById('pay-btn');
+      btn.disabled = true;
+      btn.innerText = "🔍 Перевіряємо оплату...";
+      try {
+        const res = await fetch("https://pantelmed-backend.onrender.com/check-payment");
+        const data = await res.json();
+        if (data.access === "granted") {
+          window.location.href = "thankyou.html";
+        } else {
+          alert("❌ Платіж не знайдено. Спробуй пізніше або зачекай кілька хвилин.");
+          btn.disabled = false;
+          btn.innerText = "✅ Я оплатив";
+        }
+      } catch (err) {
+        alert("⚠️ Помилка зʼєднання з сервером.");
+        btn.disabled = false;
+        btn.innerText = "✅ Я оплатив";
+      }
     }
-    .container {
-      max-width: 400px;
-      margin: auto;
-      text-align: center;
-    }
-    button {
-      padding: 10px 20px;
-      font-size: 16px;
-      margin-top: 15px;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 8px;
-    }
-    .paid-content {
-      margin-top: 30px;
-      background: #e8f5e9;
-      padding: 15px;
-      border-radius: 10px;
-      display: none;
-    }
-  </style>
+  </script>
 </head>
 <body>
   <div class="container">
-    <h2>PantelMed: Розширений доступ</h2>
-    <p>Оплати нижче, щоб отримати доступ до стека добавок, списку аналізів та інтерпретатора</p>
-
-    <a href="pay.html" target="_blank">
-      <button>💳 Оплатити карткою через Onramper</button>
-    </a>
-
-    <button id="payBtn">Я оплатив</button>
-
-    <div class="paid-content" id="paidContent">
-      <h3>✅ Доступ відкрито!</h3>
-      <ul>
-        <li><b>Добавки:</b> цинк, магній, омега-3</li>
-        <li><b>Аналізи:</b> Тестостерон, Вітамін D, TSH</li>
-        <li><b>Інтерпретатор:</b> буде в наступній версії</li>
-      </ul>
-    </div>
+    <h2>💳 Оплата</h2>
+    <p>Щоб отримати повний доступ, надішли <strong>0.5 USDT (TRC-20)</strong> на адресу:</p>
+    <code style="display: block; margin: 20px 0; font-size: 18px;">TQeHa8VdwfyybxtioW4ggbnDC1rbWe8nFa</code>
+    <p>Після оплати натисни кнопку нижче:</p>
+    <button id="pay-btn" onclick="checkPayment()">✅ Я оплатив</button>
   </div>
-
-  <script>
-    const telegram = window.Telegram?.WebApp || {};
-    telegram.ready?.();
-
-    const userId = telegram.initDataUnsafe?.user?.id;
-    console.log("Telegram user ID:", userId);
-    alert("Ваш Telegram ID: " + userId);
-
-    const payBtn = document.getElementById("payBtn");
-
-    if (!userId) {
-      payBtn.disabled = true;
-      payBtn.innerText = "ID не передано з Telegram";
-    } else {
-      payBtn.addEventListener("click", () => {
-        fetch("https://pantelmed.onrender.com/check_payment", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ user_id: userId })
-        })
-          .then(res => res.json())
-          .then(data => {
-            console.log("Backend response:", data);
-            if (data.paid) {
-              document.getElementById("paidContent").style.display = "block";
-              payBtn.innerText = "✅ Оплата знайдена";
-              payBtn.disabled = true;
-            } else {
-              alert("❌ Платіж не знайдено. Спробуйте ще через хвилину або перевір адресу.");
-            }
-          })
-          .catch(error => {
-            console.error("Error during payment check:", error);
-            alert("🚫 Помилка при перевірці. Спробуйте ще раз пізніше.");
-          });
-      });
-    }
-  </script>
 </body>
 </html>
