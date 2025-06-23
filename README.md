@@ -1,1 +1,0 @@
-# PantelMed-frontend
